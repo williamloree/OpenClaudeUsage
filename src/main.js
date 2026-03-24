@@ -19,7 +19,7 @@ if (!app || typeof app.whenReady !== "function") {
 }
 
 /* ─────────────────────────────────────────────
-   Config persistence  (~AppData/claude-usage-tray/config.json)
+   Config persistence  (~AppData/OpenClaudeUsage/config.json)
 ───────────────────────────────────────────── */
 
 // Résolu en lazy à l'intérieur de whenReady (app.getPath n'est pas
@@ -515,10 +515,10 @@ async function fetchUsage() {
 }
 
 function buildTooltip() {
-  if (!usageData) return "Claude Usage";
+  if (!usageData) return "OpenClaudeUsage";
   const s = usageData.session;
   const w = usageData.weekly;
-  let tip = "Claude Usage\n";
+  let tip = "OpenClaudeUsage\n";
   if (s.pct !== null) tip += `Session : ${s.pct}%`;
   if (w.pct !== null) tip += `  |  Semaine : ${w.pct}%`;
   if (usageData.extra.spend) tip += `\nDépenses : ${usageData.extra.spend}`;
@@ -615,7 +615,7 @@ function openSettings() {
   settingsWin = new BrowserWindow({
     width: 480,
     height: 520,
-    title: "Claude Usage — Paramètres",
+    title: "OpenClaudeUsage — Paramètres",
     frame: false,
     resizable: false,
     minimizable: false,
@@ -632,7 +632,7 @@ function openSettings() {
    App bootstrap
 ───────────────────────────────────────────── */
 app.whenReady().then(() => {
-  app.setAppUserModelId("com.william.claude-usage-tray");
+  app.setAppUserModelId("com.william.open-claude-usage");
   if (app.dock) app.dock.hide();
 
   // Chargement de la config (app.getPath disponible seulement ici)
@@ -644,7 +644,7 @@ app.whenReady().then(() => {
   } catch (_) {
     tray = new Tray(nativeImage.createEmpty());
   }
-  tray.setToolTip("Claude Usage Monitor");
+  tray.setToolTip("OpenClaudeUsage Monitor");
   tray.setContextMenu(
     Menu.buildFromTemplate([
       { label: "Afficher / Masquer", click: togglePopup },

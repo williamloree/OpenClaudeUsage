@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🔮 Claude Usage Tray</h1>
+  <h1>🔮 OpenClaudeUsage</h1>
   <p><b>An unofficial Windows system tray application to seamlessly monitor your Claude.ai usage.</b></p>
   <p><i>Une application non-officielle pour la barre d'état Windows permettant de surveiller votre consommation Claude.ai.</i></p>
 </div>
@@ -8,13 +8,13 @@
 
 ## English Documentation
 
-Claude Usage Tray is a lightweight Electron app that lives in your Windows system tray. It securely scrapes `claude.ai/settings/usage` using your local session cookie, avoiding the need for expensive API keys.
+OpenClaudeUsage is a lightweight Electron app that lives in your Windows system tray. It securely scrapes `claude.ai/settings/usage` using your local session cookie, avoiding the need for expensive API keys.
 
 ### ✨ Features
 - **Live Token Tracking**: View current session and weekly token limits via progress bars.
 - **Extra Usage Costs**: Keep track of out-of-plan spendings (€ / $).
 - **API-Key Free**: Uses your own `sessionKey` cookie to authenticate locally.
-- **Privacy First**: Your cookie is stored locally in `%AppData%` and never leaves your machine.
+- **Privacy First**: Your cookie is stored locally in `%AppData%\OpenClaudeUsage` and never leaves your machine.
 - **Custom Refresh Rate**: Configure auto-refresh intervals from 1 minute to 1 hour.
 
 ### 🚀 Quick Start
@@ -65,7 +65,7 @@ npm run build   # Génère un exécutable portable dans dist/
 ### 💡 Fonctionnement et Vues
 - L'application ouvre une fenêtre Electron **invisible** qui charge la page d'utilisation de Claude.
 - Le DOM est parsé de manière sécurisée pour extraire : **Session actuelle** (tokens), **Limites hebdomadaires** et **Usage supplémentaire** (dépenses).
-- **Vie privée :** Le cookie est stocké dans `%AppData%\claude-usage-tray\config.json` et ne quitte jamais votre machine. Il expire en même temps que votre session web.
+- **Vie privée :** Le cookie est stocké dans `%AppData%\OpenClaudeUsage\config.json` et ne quitte jamais votre machine. Il expire en même temps que votre session web.
 
 ---
 

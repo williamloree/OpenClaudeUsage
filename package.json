@@ -1,5 +1,5 @@
 {
-  "name": "claude-usage-tray",
+  "name": "open-claude-usage",
   "version": "1.0.0",
   "description": "Claude.ai usage monitor — system tray",
   "main": "src/main.js",
@@ -14,8 +14,8 @@
     "electron-builder": "^24.9.1"
   },
   "build": {
-    "appId": "com.william.claude-usage-tray",
-    "productName": "Claude Usage",
+    "appId": "com.william.open-claude-usage",
+    "productName": "OpenClaudeUsage",
     "win": {
       "target": "portable",
       "icon": "assets/icon.ico"
