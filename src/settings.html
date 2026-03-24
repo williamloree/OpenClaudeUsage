@@ -1,397 +1,540 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>Paramètres — Claude Usage</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+  <head>
+    <meta charset="UTF-8" />
+    <title>Paramètres — Claude Usage</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&display=swap");
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-:root {
-  --bg:          #07090a;
-  --surface:     #0d1012;
-  --surface-2:   #111518;
-  --border:      rgba(180,130,50,0.15);
-  --border-2:    rgba(180,130,50,0.08);
-  --amber:       #c08830;
-  --amber-b:     #e8a838;
-  --amber-dim:   rgba(180,130,50,0.32);
-  --danger:      #e84840;
-  --safe:        #38b078;
-  --text:        #e0d8c8;
-  --text-dim:    rgba(224,216,200,0.46);
-  --text-dimmer: rgba(224,216,200,0.26);
-  --mono:        'Share Tech Mono', 'Courier New', monospace;
-  --serif:       'Cormorant', Georgia, serif;
-}
+      :root {
+        --bg: #07090a;
+        --surface: #0d1012;
+        --surface-2: #111518;
+        --border: rgba(180, 130, 50, 0.15);
+        --border-2: rgba(180, 130, 50, 0.08);
+        --amber: #c08830;
+        --amber-b: #e8a838;
+        --amber-dim: rgba(180, 130, 50, 0.32);
+        --danger: #e84840;
+        --safe: #38b078;
+        --text: #e0d8c8;
+        --text-dim: rgba(224, 216, 200, 0.46);
+        --text-dimmer: rgba(224, 216, 200, 0.26);
+        --mono: "Share Tech Mono", "Courier New", monospace;
+        --serif: "Cormorant", Georgia, serif;
+      }
 
-html, body {
-  width: 480px;
-  height: 460px;
-  overflow: hidden;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 13px;
-  user-select: none;
-  -webkit-user-select: none;
-}
+      html,
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        user-select: none;
+        -webkit-user-select: none;
+      }
 
-/* Grain */
-body::after {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 9999;
-}
+      /* Grain */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 9999;
+      }
 
-/* ── Layout ─ */
-.page {
-  display: flex;
-  flex-direction: column;
-  height: 460px;
-}
+      /* ── Layout ─ */
+      .page {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
 
-/* ── Header ─ */
-.header {
-  padding: 16px 20px 14px;
-  border-bottom: 1px solid var(--border-2);
-  position: relative;
-}
+      /* ── Header ─ */
+      .header {
+        padding: 16px 20px 14px;
+        border-bottom: 1px solid var(--border-2);
+        position: relative;
+        -webkit-app-region: drag;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
 
-.header::after {
-  content: '';
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 10%, var(--amber-dim) 50%, transparent 90%);
-}
+      .header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent 10%,
+          var(--amber-dim) 50%,
+          transparent 90%
+        );
+      }
 
-.header-eyebrow {
-  font-size: 9px; letter-spacing: 0.32em;
-  text-transform: uppercase; color: var(--amber);
-  margin-bottom: 3px;
-}
+      .header-eyebrow {
+        font-size: 9px;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: var(--amber);
+        margin-bottom: 3px;
+      }
 
-.header-title {
-  font-family: var(--serif);
-  font-size: 1.55rem; font-weight: 300; font-style: italic;
-  color: var(--text); line-height: 1;
-}
+      .header-title {
+        font-family: var(--serif);
+        font-size: 1.55rem;
+        font-weight: 300;
+        font-style: italic;
+        color: var(--text);
+        line-height: 1;
+      }
 
-/* ── Scrollable body ─ */
-.body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--amber-dim) transparent;
-}
+      .close-btn {
+        -webkit-app-region: no-drag;
+        cursor: pointer;
+        color: var(--text-dimmer);
+        font-size: 16px;
+        line-height: 1;
+        transition: color 0.15s;
+      }
+      .close-btn:hover {
+        color: var(--danger);
+      }
 
-.body::-webkit-scrollbar { width: 4px; }
-.body::-webkit-scrollbar-thumb { background: var(--amber-dim); border-radius: 2px; }
+      /* ── Scrollable body ─ */
+      .body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 20px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--amber-dim) transparent;
+      }
 
-/* ── Steps card ─ */
-.steps-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 13px 15px;
-  position: relative;
-  overflow: hidden;
-}
+      .body::-webkit-scrollbar {
+        width: 4px;
+      }
+      .body::-webkit-scrollbar-thumb {
+        background: var(--amber-dim);
+        border-radius: 2px;
+      }
 
-.steps-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent 15%, var(--amber-dim) 50%, transparent 85%);
-}
+      /* ── Steps card ─ */
+      .steps-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 13px 15px;
+        position: relative;
+        overflow: hidden;
+      }
 
-.steps-title {
-  font-size: 8.5px; letter-spacing: 0.3em;
-  text-transform: uppercase; color: var(--amber);
-  margin-bottom: 11px;
-}
+      .steps-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent 15%,
+          var(--amber-dim) 50%,
+          transparent 85%
+        );
+      }
 
-.step {
-  display: flex; gap: 10px; align-items: flex-start;
-  margin-bottom: 9px;
-}
-.step:last-child { margin-bottom: 0; }
+      .steps-title {
+        font-size: 8.5px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--amber);
+        margin-bottom: 11px;
+      }
 
-.step-num {
-  width: 18px; height: 18px;
-  border: 1px solid var(--amber-dim);
-  color: var(--amber);
-  font-size: 9px; display: flex;
-  align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
-}
+      .step {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        margin-bottom: 9px;
+      }
+      .step:last-child {
+        margin-bottom: 0;
+      }
 
-.step-text {
-  font-size: 11px; color: var(--text-dim);
-  line-height: 1.6; letter-spacing: 0.02em;
-}
+      .step-num {
+        width: 18px;
+        height: 18px;
+        border: 1px solid var(--amber-dim);
+        color: var(--amber);
+        font-size: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
 
-.step-text a {
-  color: var(--amber-b); cursor: pointer;
-  text-decoration: none; border-bottom: 1px solid var(--amber-dim);
-}
-.step-text a:hover { color: var(--text); border-color: var(--text-dim); }
+      .step-text {
+        font-size: 11px;
+        color: var(--text-dim);
+        line-height: 1.6;
+        letter-spacing: 0.02em;
+      }
 
-.step-text code {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  background: rgba(180,130,50,0.1);
-  border: 1px solid rgba(180,130,50,0.2);
-  border-radius: 3px;
-  padding: 1px 5px;
-  color: var(--amber-b);
-}
+      .step-text a {
+        color: var(--amber-b);
+        cursor: pointer;
+        text-decoration: none;
+        border-bottom: 1px solid var(--amber-dim);
+      }
+      .step-text a:hover {
+        color: var(--text);
+        border-color: var(--text-dim);
+      }
 
-/* ── Field ─ */
-.field { display: flex; flex-direction: column; gap: 5px; }
+      .step-text code {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        background: rgba(180, 130, 50, 0.1);
+        border: 1px solid rgba(180, 130, 50, 0.2);
+        border-radius: 3px;
+        padding: 1px 5px;
+        color: var(--amber-b);
+      }
 
-.field-label {
-  font-size: 8.5px; letter-spacing: 0.28em;
-  text-transform: uppercase; color: var(--amber);
-}
+      /* ── Field ─ */
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
 
-.field-hint {
-  font-size: 9.5px; letter-spacing: 0.06em;
-  color: var(--text-dimmer); margin-top: -2px;
-}
+      .field-label {
+        font-size: 8.5px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--amber);
+      }
 
-.input-wrap { position: relative; }
+      .field-hint {
+        font-size: 9.5px;
+        letter-spacing: 0.06em;
+        color: var(--text-dimmer);
+        margin-top: -2px;
+      }
 
-input[type=text],
-input[type=password],
-select {
-  width: 100%;
-  padding: 8px 36px 8px 11px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text);
-  font-size: 11.5px;
-  font-family: var(--mono);
-  letter-spacing: 0.06em;
-  outline: none;
-  transition: border-color .15s, box-shadow .15s;
-  -webkit-appearance: none;
-}
+      .input-wrap {
+        position: relative;
+      }
 
-input[type=text]:focus,
-input[type=password]:focus {
-  border-color: var(--amber-dim);
-  box-shadow: 0 0 0 2px rgba(180,130,50,0.1);
-}
+      input[type="text"],
+      input[type="password"],
+      select {
+        width: 100%;
+        padding: 8px 36px 8px 11px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-size: 11.5px;
+        font-family: var(--mono);
+        letter-spacing: 0.06em;
+        outline: none;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+        -webkit-appearance: none;
+      }
 
-select {
-  padding-right: 11px;
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='none' stroke='rgba(180,130,50,0.6)' stroke-width='1.5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  appearance: none;
-}
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        border-color: var(--amber-dim);
+        box-shadow: 0 0 0 2px rgba(180, 130, 50, 0.1);
+      }
 
-select option { background: #0d1012; color: var(--text); }
+      select {
+        padding-right: 11px;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='none' stroke='rgba(180,130,50,0.6)' stroke-width='1.5'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        appearance: none;
+      }
 
-.eye-btn {
-  position: absolute; right: 9px; top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer; color: var(--text-dimmer);
-  font-size: 13px; transition: color .15s;
-  background: none; border: none; padding: 0;
-  line-height: 1;
-}
-.eye-btn:hover { color: var(--amber); }
+      select option {
+        background: #0d1012;
+        color: var(--text);
+      }
 
-/* ── Divider ─ */
-.divider {
-  height: 1px;
-  background: var(--border-2);
-}
+      .eye-btn {
+        position: absolute;
+        right: 9px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: var(--text-dimmer);
+        font-size: 13px;
+        transition: color 0.15s;
+        background: none;
+        border: none;
+        padding: 0;
+        line-height: 1;
+      }
+      .eye-btn:hover {
+        color: var(--amber);
+      }
 
-/* ── Footer ─ */
-.footer {
-  padding: 12px 20px 14px;
-  border-top: 1px solid var(--border-2);
-  display: flex;
-  gap: 10px;
-  position: relative;
-}
+      /* ── Divider ─ */
+      .divider {
+        height: 1px;
+        background: var(--border-2);
+      }
 
-.footer::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent 10%, var(--amber-dim) 50%, transparent 90%);
-}
+      /* ── Footer ─ */
+      .footer {
+        padding: 12px 20px 14px;
+        border-top: 1px solid var(--border-2);
+        display: flex;
+        gap: 10px;
+        position: relative;
+      }
 
-.btn {
-  flex: 1; padding: 9px 16px;
-  border-radius: 6px;
-  font-size: 10px; letter-spacing: 0.2em;
-  text-transform: uppercase;
-  font-family: var(--mono);
-  cursor: pointer; border: none;
-  transition: all .15s;
-}
+      .footer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent 10%,
+          var(--amber-dim) 50%,
+          transparent 90%
+        );
+      }
 
-.btn-primary {
-  background: rgba(180,130,50,0.15);
-  border: 1px solid var(--amber-dim);
-  color: var(--amber-b);
-}
-.btn-primary:hover {
-  background: rgba(180,130,50,0.28);
-  box-shadow: 0 0 16px rgba(180,130,50,0.18);
-  color: var(--text);
-}
+      .btn {
+        flex: 1;
+        padding: 9px 16px;
+        border-radius: 6px;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-family: var(--mono);
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+      }
 
-.btn-secondary {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-dimmer);
-}
-.btn-secondary:hover { border-color: var(--border); color: var(--text-dim); }
+      .btn-primary {
+        background: rgba(180, 130, 50, 0.15);
+        border: 1px solid var(--amber-dim);
+        color: var(--amber-b);
+      }
+      .btn-primary:hover {
+        background: rgba(180, 130, 50, 0.28);
+        box-shadow: 0 0 16px rgba(180, 130, 50, 0.18);
+        color: var(--text);
+      }
 
-/* ── Toast ─ */
-.toast {
-  position: fixed; bottom: 56px; left: 50%;
-  transform: translateX(-50%) translateY(8px);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 6px 16px;
-  font-size: 10px; letter-spacing: 0.15em;
-  color: var(--safe);
-  border-radius: 4px;
-  opacity: 0;
-  transition: opacity .2s, transform .2s;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 100;
-}
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-</style>
-</head>
-<body>
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-dimmer);
+      }
+      .btn-secondary:hover {
+        border-color: var(--border);
+        color: var(--text-dim);
+      }
 
-<div class="page">
+      /* ── Toast ─ */
+      .toast {
+        position: fixed;
+        bottom: 56px;
+        left: 50%;
+        transform: translateX(-50%) translateY(8px);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 6px 16px;
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        color: var(--safe);
+        border-radius: 4px;
+        opacity: 0;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+        pointer-events: none;
+        white-space: nowrap;
+        z-index: 100;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- ── Header ── -->
+      <div class="header">
+        <div>
+          <div class="header-eyebrow">Claude Usage · Configuration</div>
+          <div class="header-title">Paramètres</div>
+        </div>
+        <div class="close-btn" onclick="cancel()" title="Fermer">✕</div>
+      </div>
 
-  <!-- ── Header ── -->
-  <div class="header">
-    <div class="header-eyebrow">Claude Usage · Configuration</div>
-    <div class="header-title">Paramètres</div>
-  </div>
+      <!-- ── Body ── -->
+      <div class="body">
+        <!-- Steps -->
+        <div class="steps-card">
+          <div class="steps-title">Comment obtenir ton sessionKey</div>
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              Ouvre <a onclick="openExt('https://claude.ai')">claude.ai</a> dans
+              ton navigateur et connecte-toi.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              Appuie sur <code>F12</code> → onglet
+              <strong>Application</strong> (Chrome) ou
+              <strong>Stockage</strong> (Firefox).
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              Dans <strong>Cookies → https://claude.ai</strong>, trouve la ligne
+              <code>sessionKey</code> et copie sa valeur.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-text">
+              Colle la valeur ci-dessous. Elle commence par
+              <code>sk-ant-sid</code>.
+            </div>
+          </div>
+        </div>
 
-  <!-- ── Body ── -->
-  <div class="body">
+        <!-- Cookie field -->
+        <div class="field">
+          <div class="field-label">Cookie sessionKey</div>
+          <div class="input-wrap">
+            <input
+              type="password"
+              id="sk"
+              placeholder="sk-ant-sid03-…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              class="eye-btn"
+              id="eye-btn"
+              onclick="toggleEye()"
+              title="Afficher / Masquer"
+            >
+              👁
+            </button>
+          </div>
+          <div class="field-hint">
+            Stocké localement dans AppData. Ne quitte jamais ta machine.
+          </div>
+        </div>
 
-    <!-- Steps -->
-    <div class="steps-card">
-      <div class="steps-title">Comment obtenir ton sessionKey</div>
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-text">
-          Ouvre <a onclick="openExt('https://claude.ai')">claude.ai</a> dans ton navigateur et connecte-toi.
+        <!-- Interval field -->
+        <div class="field">
+          <div class="field-label">Rafraîchissement automatique</div>
+          <div class="input-wrap">
+            <select id="interval">
+              <option value="1">Toutes les minutes</option>
+              <option value="5" selected>Toutes les 5 minutes</option>
+              <option value="10">Toutes les 10 minutes</option>
+              <option value="30">Toutes les 30 minutes</option>
+              <option value="60">Toutes les heures</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-text">
-          Appuie sur <code>F12</code> → onglet <strong>Application</strong> (Chrome) ou <strong>Stockage</strong> (Firefox).
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-text">
-          Dans <strong>Cookies → https://claude.ai</strong>, trouve la ligne <code>sessionKey</code> et copie sa valeur.
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-text">
-          Colle la valeur ci-dessous. Elle commence par <code>sk-ant-sid</code>.
-        </div>
+      <!-- /body -->
+
+      <!-- ── Footer ── -->
+      <div class="footer">
+        <button class="btn btn-secondary" onclick="cancel()">Annuler</button>
+        <button class="btn btn-primary" onclick="save()">Enregistrer</button>
       </div>
     </div>
+    <!-- /page -->
 
-    <!-- Cookie field -->
-    <div class="field">
-      <div class="field-label">Cookie sessionKey</div>
-      <div class="input-wrap">
-        <input type="password" id="sk" placeholder="sk-ant-sid03-…" autocomplete="off" spellcheck="false">
-        <button class="eye-btn" id="eye-btn" onclick="toggleEye()" title="Afficher / Masquer">👁</button>
-      </div>
-      <div class="field-hint">Stocké localement dans AppData. Ne quitte jamais ta machine.</div>
-    </div>
+    <div class="toast" id="toast">✓ Enregistré</div>
 
-    <!-- Interval field -->
-    <div class="field">
-      <div class="field-label">Rafraîchissement automatique</div>
-      <div class="input-wrap">
-        <select id="interval">
-          <option value="1">Toutes les minutes</option>
-          <option value="5" selected>Toutes les 5 minutes</option>
-          <option value="10">Toutes les 10 minutes</option>
-          <option value="30">Toutes les 30 minutes</option>
-          <option value="60">Toutes les heures</option>
-        </select>
-      </div>
-    </div>
+    <script>
+      const { ipcRenderer, shell } = require("electron");
+      let eyeOpen = false;
 
-  </div><!-- /body -->
+      function openExt(url) {
+        shell.openExternal(url);
+      }
 
-  <!-- ── Footer ── -->
-  <div class="footer">
-    <button class="btn btn-secondary" onclick="cancel()">Annuler</button>
-    <button class="btn btn-primary"   onclick="save()">Enregistrer</button>
-  </div>
+      function cancel() {
+        window.close();
+      }
 
-</div><!-- /page -->
+      // Load current config
+      ipcRenderer.send("get-config");
+      ipcRenderer.on("config-data", (_, cfg) => {
+        if (cfg.sessionKey)
+          document.getElementById("sk").value = cfg.sessionKey;
+        if (cfg.refreshInterval)
+          document.getElementById("interval").value = String(
+            cfg.refreshInterval,
+          );
+      });
 
-<div class="toast" id="toast">✓ Enregistré</div>
+      function toggleEye() {
+        eyeOpen = !eyeOpen;
+        document.getElementById("sk").type = eyeOpen ? "text" : "password";
+        document.getElementById("eye-btn").textContent = eyeOpen ? "🙈" : "👁";
+      }
 
-<script>
-const { ipcRenderer, shell } = require('electron');
-let eyeOpen = false;
+      function save() {
+        const sessionKey = document.getElementById("sk").value.trim();
+        const refreshInterval = parseInt(
+          document.getElementById("interval").value,
+          10,
+        );
 
-function openExt(url) { shell.openExternal(url); }
-
-function cancel() { window.close(); }
-
-// Load current config
-ipcRenderer.send('get-config');
-ipcRenderer.on('config-data', (_, cfg) => {
-  if (cfg.sessionKey)      document.getElementById('sk').value = cfg.sessionKey;
-  if (cfg.refreshInterval) document.getElementById('interval').value = String(cfg.refreshInterval);
-});
-
-function toggleEye() {
-  eyeOpen = !eyeOpen;
-  document.getElementById('sk').type = eyeOpen ? 'text' : 'password';
-  document.getElementById('eye-btn').textContent = eyeOpen ? '🙈' : '👁';
-}
-
-function save() {
-  const sessionKey      = document.getElementById('sk').value.trim();
-  const refreshInterval = parseInt(document.getElementById('interval').value, 10);
-
-  // Brief toast before IPC closes window
-  const toast = document.getElementById('toast');
-  toast.classList.add('show');
-  setTimeout(() => {
-    ipcRenderer.send('save-config', { sessionKey, refreshInterval });
-  }, 400);
-}
-</script>
-</body>
+        // Brief toast before IPC closes window
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => {
+          ipcRenderer.send("save-config", { sessionKey, refreshInterval });
+        }, 400);
+      }
+    </script>
+  </body>
 </html>
