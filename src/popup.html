@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:          #07090a;
+  --surface:     rgba(13,16,18,0.97);
+  --surface-2:   rgba(18,22,20,0.9);
+  --border:      rgba(180,130,50,0.15);
+  --border-2:    rgba(180,130,50,0.08);
+  --amber:       #c08830;
+  --amber-b:     #e8a838;
+  --amber-glow:  rgba(232,168,56,0.18);
+  --amber-dim:   rgba(180,130,50,0.32);
+  --danger:      #c03830;
+  --danger-b:    #e84840;
+  --safe:        #2a8860;
+  --safe-b:      #38b078;
+  --text:        #e0d8c8;
+  --text-dim:    rgba(224,216,200,0.46);
+  --text-dimmer: rgba(224,216,200,0.26);
+  --mono:        'Share Tech Mono', 'Courier New', monospace;
+  --serif:       'Cormorant', Georgia, serif;
+}
+
+html, body {
+  width: 420px; height: 600px;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--mono);
+  color: var(--text);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Shell ──────────────────────────────── */
+.shell {
+  width: 420px; height: 600px;
+  background: linear-gradient(160deg,
+    rgba(9,11,12,0.98) 0%,
+    rgba(12,15,13,0.98) 60%,
+    rgba(8,10,11,0.98) 100%);
+  backdrop-filter: blur(48px) saturate(1.3);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow:
+    0 32px 80px rgba(0,0,0,0.75),
+    inset 0 1px 0 rgba(180,130,50,0.12),
+    inset 0 0 0 1px rgba(255,255,255,0.02);
+  display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+}
+
+/* Top ambient glow */
+.shell::before {
+  content: '';
+  position: absolute; top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 260px; height: 180px;
+  background: radial-gradient(ellipse, rgba(180,130,50,0.08) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* Scanlines */
+.shell::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.02) 3px, rgba(0,0,0,0.02) 4px
+  );
+  pointer-events: none; z-index: 9999;
+  border-radius: 16px;
+}
+
+/* ── Drag handle ────────────────────────── */
+.drag {
+  -webkit-app-region: drag;
+  position: absolute; top: 0; left: 0; right: 0; height: 44px;
+  z-index: 10;
+}
+
+/* ── Header ─────────────────────────────── */
+.header {
+  position: relative; z-index: 20;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 13px 15px 11px;
+  border-bottom: 1px solid var(--border-2);
+  -webkit-app-region: drag;
+}
+
+/* Corner brackets on header */
+.header::before, .header::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border-color: var(--amber-dim);
+}
+.header::before {
+  top: 6px; left: 6px;
+  border-top: 1px solid; border-left: 1px solid;
+}
+.header::after {
+  top: 6px; right: 6px;
+  border-top: 1px solid; border-right: 1px solid;
+}
+
+.brand { display: flex; align-items: center; gap: 9px; }
+
+.logo {
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, rgba(180,130,50,0.3), rgba(232,168,56,0.15));
+  border: 1px solid var(--amber-dim);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif);
+  font-size: 15px; font-weight: 400; font-style: italic;
+  color: var(--amber-b);
+  flex-shrink: 0;
+}
+
+.brand-text { line-height: 1.25; }
+
+.brand-name {
+  font-family: var(--serif);
+  font-size: 13px; font-weight: 300; font-style: italic;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.brand-time {
+  font-size: 9.5px; letter-spacing: 0.15em;
+  color: var(--text-dimmer); margin-top: 1px;
+  text-transform: uppercase;
+}
+
+.header-btns {
+  display: flex; gap: 5px;
+  -webkit-app-region: no-drag;
+}
+
+.icon-btn {
+  width: 25px; height: 25px; border-radius: 6px;
+  background: rgba(180,130,50,0.08);
+  border: 1px solid rgba(180,130,50,0.16);
+  color: var(--text-dimmer); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; transition: all .15s;
+}
+.icon-btn:hover {
+  background: rgba(180,130,50,0.18);
+  border-color: var(--amber-dim);
+  color: var(--amber-b);
+}
+
+/* ── Status row ─────────────────────────── */
+.status-row {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 15px;
+  border-bottom: 1px solid var(--border-2);
+  font-size: 10px; letter-spacing: 0.12em;
+  color: var(--text-dimmer);
+  text-transform: uppercase;
+  position: relative; z-index: 10;
+}
+
+.dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--safe-b);
+  box-shadow: 0 0 5px var(--safe-b);
+  flex-shrink: 0;
+  transition: background .3s, box-shadow .3s;
+}
+.dot.spin  { background: var(--amber-b); box-shadow: 0 0 5px var(--amber-b); animation: blink 1s infinite; }
+.dot.error { background: var(--danger-b); box-shadow: 0 0 5px var(--danger-b); animation: none; }
+.dot.idle  { background: #444; box-shadow: none; animation: none; }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── Alert banner ───────────────────────── */
+.alert-banner {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 15px;
+  background: rgba(200,56,48,0.07);
+  border-bottom: 1px solid rgba(200,56,48,0.18);
+  font-size: 9px; letter-spacing: 0.15em;
+  color: var(--danger-b);
+  text-transform: uppercase;
+  position: relative; z-index: 10;
+  animation: alertPulse 2.5s ease-in-out infinite;
+}
+.alert-banner.hidden { display: none; }
+@keyframes alertPulse { 0%,100%{opacity:1} 50%{opacity:.65} }
+
+/* ── Body ───────────────────────────────── */
+.body {
+  flex: 1; padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 9px;
+  overflow: hidden; position: relative; z-index: 10;
+}
+
+/* ── Empty / error states ───────────────── */
+.empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; gap: 14px; text-align: center;
+}
+.empty-ico { font-size: 32px; opacity: .4; }
+.empty-text {
+  font-size: 11.5px; color: var(--text-dim);
+  line-height: 1.75; letter-spacing: 0.04em;
+}
+.empty-text strong { color: var(--amber-b); }
+
+.btn-primary {
+  padding: 8px 20px;
+  background: rgba(180,130,50,0.15);
+  border: 1px solid var(--amber-dim);
+  border-radius: 7px; color: var(--amber-b);
+  font-size: 11px; font-weight: 400;
+  font-family: var(--mono);
+  letter-spacing: 0.18em; text-transform: uppercase;
+  cursor: pointer; transition: all .15s;
+}
+.btn-primary:hover {
+  background: rgba(180,130,50,0.28);
+  box-shadow: 0 0 14px rgba(180,130,50,0.2);
+}
+
+/* ── Cards ──────────────────────────────── */
+.card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 11px 13px;
+  position: relative; overflow: hidden;
+  transition: border-color .2s;
+}
+.card:hover { border-color: var(--amber-dim); }
+
+/* Top glow line */
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 15%, var(--amber-dim) 50%, transparent 85%);
+}
+
+.card.critical { border-color: rgba(200,56,48,0.25); }
+.card.critical::before {
+  background: linear-gradient(90deg, transparent 15%, rgba(200,56,48,0.45) 50%, transparent 85%);
+}
+
+.card-label {
+  font-size: 9px; letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 9px;
+}
+.card.critical .card-label { color: var(--danger-b); }
+
+/* ── Gauge layout ───────────────────────── */
+.gauge-layout {
+  display: flex; align-items: center; gap: 13px;
+}
+
+.gauge-wrap { position: relative; flex-shrink: 0; }
+.gauge-wrap svg { transform: rotate(-90deg); display: block; }
+
+.gauge-track { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 4; }
+
+.gauge-fill {
+  fill: none; stroke-width: 4; stroke-linecap: butt;
+  stroke-dasharray: 213.63; /* 2π×34 */
+  stroke-dashoffset: 213.63;
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.gauge-fill.critical { stroke: var(--danger-b);  filter: drop-shadow(0 0 4px rgba(232,72,64,0.6)); }
+.gauge-fill.warning  { stroke: var(--amber-b);   filter: drop-shadow(0 0 4px rgba(232,168,56,0.5)); }
+.gauge-fill.normal   { stroke: var(--safe-b);    filter: drop-shadow(0 0 4px rgba(56,176,120,0.5)); }
+
+.gauge-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+
+.gauge-pct {
+  font-family: var(--mono);
+  font-size: 1.35rem; line-height: 1;
+}
+.gauge-pct sup { font-size: 0.55rem; vertical-align: super; }
+.gauge-pct.critical { color: var(--danger-b); }
+.gauge-pct.warning  { color: var(--amber-b); }
+.gauge-pct.normal   { color: var(--safe-b); }
+
+.gauge-sub {
+  font-size: 0.42rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-dimmer);
+  margin-top: 1px;
+}
+
+/* ── Card info rows ─────────────────────── */
+.card-info { flex: 1; }
+
+.info-pair {
+  display: flex; gap: 12px;
+}
+
+.info-item { flex: 1; }
+
+.info-key {
+  font-size: 8.5px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text-dimmer);
+  margin-bottom: 2px;
+}
+
+.info-val {
+  font-size: 1.05rem; line-height: 1;
+  color: var(--text);
+}
+.info-val.amber  { color: var(--amber-b); }
+.info-val.danger { color: var(--danger-b); }
+.info-val.safe   { color: var(--safe-b); }
+.info-val.small  { font-size: 0.78rem; }
+
+.info-reset {
+  margin-top: 5px;
+  font-size: 9px; letter-spacing: 0.12em;
+  color: var(--text-dimmer);
+}
+.info-reset span { color: var(--amber); }
+
+/* ── Bar ────────────────────────────────── */
+.bar-block { margin-top: 0; }
+
+.bar-header {
+  display: flex; justify-content: space-between;
+  align-items: baseline; margin-bottom: 5px;
+}
+
+.bar-label {
+  font-size: 9px; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--text-dimmer);
+}
+
+.bar-value {
+  font-size: 10px; color: var(--amber);
+}
+
+.bar-track {
+  height: 2px;
+  background: rgba(255,255,255,0.05);
+  position: relative;
+}
+
+.bar-fill {
+  position: absolute; left: 0; top: 0;
+  height: 100%; width: 0;
+  transition: width 1.4s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.bar-fill.critical { background: var(--danger-b); box-shadow: 0 0 6px rgba(232,72,64,0.6); }
+.bar-fill.warning  { background: var(--amber-b);  box-shadow: 0 0 6px rgba(232,168,56,0.55); }
+.bar-fill.normal   { background: var(--safe-b);   box-shadow: 0 0 6px rgba(56,176,120,0.5); }
+
+/* ── Spend card ─────────────────────────── */
+.spend-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 11px 13px;
+  position: relative; overflow: hidden;
+}
+.spend-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 15%, var(--amber-dim) 50%, transparent 85%);
+}
+
+.spend-label {
+  font-size: 9px; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--amber);
+  margin-bottom: 9px;
+}
+
+.spend-row {
+  display: flex; justify-content: space-between;
+  align-items: flex-end; margin-bottom: 8px;
+}
+
+.spend-amount {
+  font-size: 1.45rem; line-height: 1;
+  color: var(--amber-b);
+}
+
+.spend-right { text-align: right; }
+.spend-budget { font-size: 0.78rem; color: var(--text-dim); }
+.spend-renewal { font-size: 8.5px; letter-spacing: 0.12em; color: var(--text-dimmer); margin-top: 2px; }
+
+/* ── Balance + badges row ───────────────── */
+.balance-row {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 9px 13px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.balance-row::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 15%, var(--amber-dim) 50%, transparent 85%);
+}
+
+.balance-left .b-key {
+  font-size: 8.5px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text-dimmer);
+  margin-bottom: 2px;
+}
+.balance-left .b-val {
+  font-size: 1.15rem; color: var(--text);
+}
+.balance-left .b-sub {
+  font-size: 8px; letter-spacing: 0.12em;
+  color: var(--text-dimmer); margin-top: 1px;
+}
+
+.badges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 7px;
+  border: 1px solid;
+  font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+}
+.badge.off { border-color: rgba(200,56,48,0.35); color: var(--danger-b); }
+.badge.on  { border-color: rgba(56,176,120,0.35); color: var(--safe-b); }
+
+.badge-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+
+/* ── Footer ─────────────────────────────── */
+.footer {
+  padding: 8px 14px 11px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-2);
+  position: relative; z-index: 10;
+}
+
+.footer-hint {
+  font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-dimmer);
+}
+
+.btn-refresh {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 13px;
+  background: rgba(180,130,50,0.1);
+  border: 1px solid rgba(180,130,50,0.22);
+  border-radius: 6px; color: var(--amber);
+  font-size: 10px; letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: var(--mono); cursor: pointer;
+  transition: all .15s;
+}
+.btn-refresh:hover { background: rgba(180,130,50,0.22); color: var(--amber-b); }
+.btn-refresh:disabled { opacity: .35; cursor: not-allowed; }
+
+.spin-ico { display: inline-block; }
+.spin-ico.spinning { animation: rotate .75s linear infinite; }
+@keyframes rotate { to { transform: rotate(360deg); } }
+
+/* ── Skeleton ───────────────────────────── */
+.skel {
+  display: inline-block; height: 16px; width: 60px;
+  background: linear-gradient(90deg,
+    rgba(180,130,50,0.08) 25%,
+    rgba(180,130,50,0.18) 50%,
+    rgba(180,130,50,0.08) 75%);
+  background-size: 200% 100%;
+  border-radius: 3px; animation: skim 1.4s infinite;
+}
+@keyframes skim { to { background-position: -200% 0; } }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="drag"></div>
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="brand">
+      <div class="logo">C</div>
+      <div class="brand-text">
+        <div class="brand-name">Claude Usage</div>
+        <div class="brand-time" id="last-time">En attente…</div>
+      </div>
+    </div>
+    <div class="header-btns">
+      <div class="icon-btn" title="Paramètres"         onclick="ipc('open-settings')">⚙</div>
+      <div class="icon-btn" title="Ouvrir claude.ai"   onclick="ipc('open-external','https://claude.ai/settings/usage')">↗</div>
+      <div class="icon-btn" title="Fermer"             onclick="ipc('close-popup')">✕</div>
+    </div>
+  </div>
+
+  <!-- ── Status row ── -->
+  <div class="status-row">
+    <div class="dot idle" id="dot"></div>
+    <span id="status-txt">En attente…</span>
+  </div>
+
+  <!-- ── Alert banner (critique) ── -->
+  <div class="alert-banner hidden" id="alert-banner">
+    ⚠ <span id="alert-txt"></span>
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="body">
+
+    <!-- NO KEY -->
+    <div class="empty hidden" id="view-nokey">
+      <div class="empty-ico">🔑</div>
+      <div class="empty-text">
+        Aucun cookie configuré.<br>
+        Ajoute ton <strong>sessionKey</strong> pour<br>commencer le suivi en temps réel.
+      </div>
+      <button class="btn-primary" onclick="ipc('open-settings')">Configurer le cookie</button>
+    </div>
+
+    <!-- SESSION EXPIRED -->
+    <div class="empty hidden" id="view-expired">
+      <div class="empty-ico">⏱</div>
+      <div class="empty-text">
+        Session expirée ou invalide.<br>
+        Copie un nouveau <strong>sessionKey</strong><br>depuis ton navigateur.
+      </div>
+      <button class="btn-primary" onclick="ipc('open-settings')">Mettre à jour le cookie</button>
+    </div>
+
+    <!-- ERROR -->
+    <div class="empty hidden" id="view-error">
+      <div class="empty-ico">⚠️</div>
+      <div class="empty-text" id="error-msg">Erreur inconnue.</div>
+      <button class="btn-primary" onclick="doRefresh()">Réessayer</button>
+    </div>
+
+    <!-- DATA VIEW -->
+    <div id="view-data" class="hidden" style="display:flex;flex-direction:column;gap:9px;height:100%">
+
+      <!-- Session actuelle -->
+      <div class="card" id="card-session">
+        <div class="card-label">Session actuelle</div>
+        <div class="gauge-layout">
+          <div class="gauge-wrap">
+            <svg width="84" height="84" viewBox="0 0 84 84">
+              <!-- ticks -->
+              <g transform="translate(42,42)">
+                <line x1="0" y1="-39" x2="0" y2="-36" stroke="rgba(180,130,50,0.2)" stroke-width="1" transform="rotate(0)"/>
+                <line x1="0" y1="-39" x2="0" y2="-37" stroke="rgba(180,130,50,0.12)" stroke-width="1" transform="rotate(45)"/>
+                <line x1="0" y1="-39" x2="0" y2="-36" stroke="rgba(180,130,50,0.2)" stroke-width="1" transform="rotate(90)"/>
+                <line x1="0" y1="-39" x2="0" y2="-37" stroke="rgba(180,130,50,0.12)" stroke-width="1" transform="rotate(135)"/>
+                <line x1="0" y1="-39" x2="0" y2="-36" stroke="rgba(180,130,50,0.2)" stroke-width="1" transform="rotate(180)"/>
+                <line x1="0" y1="-39" x2="0" y2="-37" stroke="rgba(180,130,50,0.12)" stroke-width="1" transform="rotate(225)"/>
+                <line x1="0" y1="-39" x2="0" y2="-36" stroke="rgba(180,130,50,0.2)" stroke-width="1" transform="rotate(270)"/>
+                <line x1="0" y1="-39" x2="0" y2="-37" stroke="rgba(180,130,50,0.12)" stroke-width="1" transform="rotate(315)"/>
+              </g>
+              <circle class="gauge-track" cx="42" cy="42" r="34"/>
+              <circle class="gauge-fill normal" id="sess-ring" cx="42" cy="42" r="34" data-pct="0"/>
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-pct normal" id="sess-pct">—<sup>%</sup></span>
+              <span class="gauge-sub">utilisés</span>
+            </div>
+          </div>
+          <div class="card-info">
+            <div class="info-pair">
+              <div class="info-item">
+                <div class="info-key">Utilisés</div>
+                <div class="info-val" id="sess-used">—</div>
+              </div>
+              <div class="info-item">
+                <div class="info-key">Limite</div>
+                <div class="info-val small" id="sess-max">—</div>
+              </div>
+            </div>
+            <div class="info-reset" id="sess-reset">Réinitialisation dans <span>—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Limites hebdomadaires -->
+      <div class="card" id="card-weekly">
+        <div class="card-label">Limites hebdomadaires · Tous les modèles</div>
+        <div class="gauge-layout">
+          <div class="gauge-wrap">
+            <svg width="84" height="84" viewBox="0 0 84 84">
+              <g transform="translate(42,42)">
+                <line x1="0" y1="-39" x2="0" y2="-36" stroke="rgba(180,130,50,0.2)" stroke-width="1" transform="rotate(0)"/>
+                <line x1="0" y1="-39" x2="0" y2="-37" stroke="rgba(180,130,50,0.12)" stroke-width="1" transform="rotate(45)"/>
+                <line x1="0" y1="-39" x2="0" y2="-36" stroke="rgba(180,130,50,0.2)" stroke-width="1" transform="rotate(90)"/>
+                <line x1="0" y1="-39" x2="0" y2="-37" stroke="rgba(180,130,50,0.12)" stroke-width="1" transform="rotate(135)"/>
+                <line x1="0" y1="-39" x2="0" y2="-36" stroke="rgba(180,130,50,0.2)" stroke-width="1" transform="rotate(180)"/>
+                <line x1="0" y1="-39" x2="0" y2="-37" stroke="rgba(180,130,50,0.12)" stroke-width="1" transform="rotate(225)"/>
+                <line x1="0" y1="-39" x2="0" y2="-36" stroke="rgba(180,130,50,0.2)" stroke-width="1" transform="rotate(270)"/>
+                <line x1="0" y1="-39" x2="0" y2="-37" stroke="rgba(180,130,50,0.12)" stroke-width="1" transform="rotate(315)"/>
+              </g>
+              <circle class="gauge-track" cx="42" cy="42" r="34"/>
+              <circle class="gauge-fill normal" id="week-ring" cx="42" cy="42" r="34" data-pct="0"/>
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-pct normal" id="week-pct">—<sup>%</sup></span>
+              <span class="gauge-sub">utilisés</span>
+            </div>
+          </div>
+          <div class="card-info">
+            <div class="info-pair">
+              <div class="info-item">
+                <div class="info-key">Utilisés</div>
+                <div class="info-val" id="week-used">—</div>
+              </div>
+              <div class="info-item">
+                <div class="info-key">Limite</div>
+                <div class="info-val small" id="week-max">—</div>
+              </div>
+            </div>
+            <div class="info-reset" id="week-reset">Réinitialisation <span>—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dépenses supplémentaires -->
+      <div class="spend-card">
+        <div class="spend-label">Usage supplémentaire</div>
+        <div class="spend-row">
+          <div class="spend-amount" id="spend-val">—</div>
+          <div class="spend-right">
+            <div class="spend-budget" id="spend-budget">/ — €</div>
+            <div class="spend-renewal" id="spend-renewal">Renouvellement —</div>
+          </div>
+        </div>
+        <div class="bar-block">
+          <div class="bar-header">
+            <span class="bar-label">Consommation</span>
+            <span class="bar-value" id="spend-pct-txt">—%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill warning" id="spend-bar" data-width="0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solde & badges -->
+      <div class="balance-row">
+        <div class="balance-left">
+          <div class="b-key">Solde actuel</div>
+          <div class="b-val" id="balance-val">—</div>
+          <div class="b-sub">Limite mensuelle</div>
+        </div>
+        <div class="badges">
+          <div class="badge-row-wrap" style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+            <span class="badge off" id="badge-autoreload"><span class="badge-dot"></span>Recharge auto : OFF</span>
+            <span class="badge on"  id="badge-extra"><span class="badge-dot"></span>Usage supp. : ON</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /view-data -->
+
+  </div><!-- /body -->
+
+  <!-- ── Footer ── -->
+  <div class="footer">
+    <span class="footer-hint" id="refresh-hint">Auto toutes les 5 min</span>
+    <button class="btn-refresh" id="btn-ref" onclick="doRefresh()">
+      <span class="spin-ico" id="spin">↻</span>&nbsp;Actualiser
+    </button>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+const { ipcRenderer } = require('electron');
+
+const CIRC = 2 * Math.PI * 34; // r = 34 → ≈ 213.63
+
+function ipc(ch, ...args) { ipcRenderer.send(ch, ...args); }
+
+function fmt(n) {
+  if (n === null || n === undefined) return '—';
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
+  if (n >= 1_000)     return (n / 1_000).toFixed(1) + 'k';
+  return String(Math.round(n));
+}
+
+function showView(name) {
+  ['nokey', 'expired', 'error', 'data'].forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if (!el) return;
+    const isData = v === 'data';
+    const show   = v === name;
+    el.classList.toggle('hidden', !show);
+    if (isData) el.style.display = show ? 'flex' : 'none';
+  });
+}
+
+function setStatus(type, text) {
+  document.getElementById('dot').className = 'dot ' + type;
+  document.getElementById('status-txt').textContent = text;
+}
+
+// Determine colour class from percentage
+function pctClass(p) {
+  return p >= 90 ? 'critical' : p >= 65 ? 'warning' : 'normal';
+}
+
+function setGauge(ringId, pctId, pct) {
+  const ring    = document.getElementById(ringId);
+  const pctEl   = document.getElementById(pctId);
+  if (pct === null || pct === undefined) return;
+
+  const p   = Math.min(100, Math.max(0, pct));
+  const cls = pctClass(p);
+
+  // SVG stroke
+  ring.style.strokeDashoffset = CIRC * (1 - p / 100);
+  ring.className = 'gauge-fill ' + cls;
+
+  // Text
+  pctEl.innerHTML = Math.round(p) + '<sup>%</sup>';
+  pctEl.className = 'gauge-pct ' + cls;
+}
+
+function setBar(barId, pctTxtId, pct) {
+  const bar    = document.getElementById(barId);
+  const pctTxt = document.getElementById(pctTxtId);
+  if (!bar) return;
+  const p   = Math.min(100, Math.max(0, pct || 0));
+  const cls = pctClass(p);
+  bar.style.width  = p + '%';
+  bar.className    = 'bar-fill ' + cls;
+  if (pctTxt) pctTxt.textContent = Math.round(p) + '%';
+}
+
+function setCard(cardId, pct) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  const cls = pctClass(pct || 0);
+  card.className = 'card' + (cls === 'critical' ? ' critical' : '');
+}
+
+ipcRenderer.on('usage-update', (_, d) => {
+  const { usageData, lastFetch, fetchError, refreshInterval } = d;
+
+  document.getElementById('refresh-hint').textContent =
+    'Auto toutes les ' + (refreshInterval || 5) + ' min';
+
+  document.getElementById('last-time').textContent = lastFetch
+    ? 'Mis à jour · ' + new Date(lastFetch).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    : 'Jamais actualisé';
+
+  // ── Error states ──
+  if (fetchError === 'NO_SESSION_KEY') {
+    showView('nokey');
+    setStatus('idle', 'Cookie sessionKey manquant');
+    return;
+  }
+  if (fetchError === 'SESSION_EXPIRED') {
+    showView('expired');
+    setStatus('error', 'Session expirée');
+    return;
+  }
+  if (fetchError) {
+    showView('error');
+    document.getElementById('error-msg').textContent = '⚠ ' + fetchError;
+    setStatus('error', 'Erreur de connexion');
+    return;
+  }
+
+  if (!usageData) return;
+
+  showView('data');
+  setStatus('', 'Synchronisé');
+
+  const s = usageData.session || {};
+  const w = usageData.weekly  || {};
+  const e = usageData.extra   || {};
+
+  // ── Session ──
+  setGauge('sess-ring', 'sess-pct', s.pct);
+  setCard('card-session', s.pct);
+  document.getElementById('sess-used').textContent = fmt(s.used);
+  document.getElementById('sess-max').textContent  = fmt(s.max);
+  if (s.reset) {
+    document.getElementById('sess-reset').innerHTML =
+      'Réinitialisation dans <span>' + s.reset + '</span>';
+  }
+
+  // Alert banner for critical session
+  const banner  = document.getElementById('alert-banner');
+  const alertTx = document.getElementById('alert-txt');
+  if ((s.pct || 0) >= 85) {
+    banner.classList.remove('hidden');
+    alertTx.textContent =
+      'Session critique · ' + (s.pct || 0) + '% · réinit. dans ' + (s.reset || '—');
+  } else {
+    banner.classList.add('hidden');
+  }
+
+  // ── Weekly ──
+  setGauge('week-ring', 'week-pct', w.pct);
+  setCard('card-weekly', w.pct);
+  document.getElementById('week-used').textContent = fmt(w.used);
+  document.getElementById('week-max').textContent  = fmt(w.max);
+  if (w.reset) {
+    document.getElementById('week-reset').innerHTML =
+      'Réinitialisation <span>' + w.reset + '</span>';
+  }
+
+  // ── Spending ──
+  const spentNum   = parseFloat((e.spend  || '0').replace(/[^0-9.,]/g,'').replace(',','.')) || 0;
+  const budgetNum  = parseFloat((e.budget || '20').replace(/[^0-9.,]/g,'').replace(',','.')) || 20;
+  const spendPct   = budgetNum > 0 ? Math.round((spentNum / budgetNum) * 100) : 0;
+
+  document.getElementById('spend-val').textContent     = e.spend   || '0 €';
+  document.getElementById('spend-budget').textContent  = '/ ' + (e.budget  || '20 €');
+  document.getElementById('spend-renewal').textContent = 'Renouvellement ' + (e.renewal || '—');
+  setBar('spend-bar', 'spend-pct-txt', spendPct);
+
+  // ── Balance ──
+  document.getElementById('balance-val').textContent = e.balance || '—';
+
+  // Badges
+  const reloadBadge = document.getElementById('badge-autoreload');
+  const extraBadge  = document.getElementById('badge-extra');
+
+  if (e.autoReload) {
+    reloadBadge.className = 'badge on';
+    reloadBadge.innerHTML = '<span class="badge-dot"></span>Recharge auto : ON';
+  } else {
+    reloadBadge.className = 'badge off';
+    reloadBadge.innerHTML = '<span class="badge-dot"></span>Recharge auto : OFF';
+  }
+  if (e.extraEnabled === false) {
+    extraBadge.className = 'badge off';
+    extraBadge.innerHTML = '<span class="badge-dot"></span>Usage supp. : OFF';
+  } else {
+    extraBadge.className = 'badge on';
+    extraBadge.innerHTML = '<span class="badge-dot"></span>Usage supp. : ON';
+  }
+});
+
+// ── Refresh button ──
+let refreshing = false;
+function doRefresh() {
+  if (refreshing) return;
+  refreshing = true;
+  const spin = document.getElementById('spin');
+  const btn  = document.getElementById('btn-ref');
+  spin.classList.add('spinning');
+  btn.disabled = true;
+  ipc('refresh');
+  setTimeout(() => {
+    spin.classList.remove('spinning');
+    btn.disabled  = false;
+    refreshing    = false;
+  }, 4000);
+}
+
+// Animate gauges/bars after first paint
+window.addEventListener('DOMContentLoaded', () => {
+  // Initial state — nothing to animate, wait for IPC
+});
+</script>
+</body>
+</html>
