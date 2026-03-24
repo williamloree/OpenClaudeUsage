@@ -61,21 +61,81 @@ let refreshTimer = null;
 let config = { sessionKey: "", refreshInterval: 5 }; // chargé dans whenReady
 let isScraping = false;
 let lastPopupPos = null; // chargé dans whenReady
+let lastSessionPct = null; // pourcentage session actuelle (pour la couleur du point)
 
 /* ─────────────────────────────────────────────
-   Tray icon (SVG → NativeImage)
+   Tray icon — logo.png + point coloré
+   Approche 100% sans fenêtre cachée :
+   manipulation directe du bitmap BGRA via
+   nativeImage.toBitmap() / createFromBitmap()
 ───────────────────────────────────────────── */
+
+let _logoBase32 = null; // NativeImage 32×32 chargé une fois
+
+function getLogoBase() {
+  if (_logoBase32) return _logoBase32;
+  try {
+    const img = nativeImage.createFromPath(
+      path.join(__dirname, "assets/logo.png"),
+    );
+    if (!img.isEmpty()) {
+      _logoBase32 = img.resize({ width: 32, height: 32 });
+    }
+  } catch (_) {}
+  return _logoBase32;
+}
+
+// Compose le logo 32×32 avec un point coloré en bas à droite
+// dotRgb = [R, G, B] ou null. Format bitmap Windows : BGRA.
+function makeLogoWithDot(dotRgb) {
+  const logo = getLogoBase();
+  if (!logo) return null;
+
+  const size = 32;
+  const buf = Buffer.from(logo.toBitmap()); // copie indépendante
+  const cx = 24, cy = 24, r = 5.5;
+
+  if (dotRgb) {
+    const [dr, dg, db] = dotRgb;
+    const span = Math.ceil(r + 2);
+    for (let py = cy - span; py <= cy + span; py++) {
+      for (let px = cx - span; px <= cx + span; px++) {
+        if (px < 0 || px >= size || py < 0 || py >= size) continue;
+        const dist = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
+        const i = (py * size + px) * 4;
+        if (dist <= r) {
+          buf[i] = db; buf[i + 1] = dg; buf[i + 2] = dr; buf[i + 3] = 255;
+        } else if (dist <= r + 1.5) {
+          buf[i] = 10; buf[i + 1] = 10; buf[i + 2] = 10; buf[i + 3] = 255;
+        }
+      }
+    }
+  }
+
+  return nativeImage.createFromBitmap(buf, { width: size, height: size });
+}
+
 function makeTrayIcon(state) {
-  // state: 'idle' | 'ok' | 'error' | 'spin'
-  const amber = "#e8a838";
+  const pct = lastSessionPct;
+
+  // Couleur du point selon l'état et le % de session
+  const dot =
+    state === "error" ? [232, 72,  64]  :  // rouge
+    state === "spin"  ? [240, 192, 80]  :  // jaune
+    state === "idle"  ? [85,  85,  85]  :  // gris
+    pct === null      ? [85,  85,  85]  :  // gris (pas encore de données)
+    pct > 80          ? [232, 72,  64]  :  // rouge  (>80 %)
+    pct > 50          ? [240, 160, 32]  :  // orange (50–80 %)
+                        [76,  175, 80];    // vert   (≤50 %)
+
+  const img = makeLogoWithDot(dot);
+  if (img) return img;
+
+  // Fallback jauge SVG si logo.png absent
   const color =
-    state === "error"
-      ? "#e84840"
-      : state === "ok"
-        ? amber
-        : state === "spin"
-          ? "#f0c050"
-          : "#555";
+    state === "error" ? "#e84840" :
+    state === "ok"    ? "#e8a838" :
+    state === "spin"  ? "#f0c050" : "#555";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
     <rect width="16" height="16" rx="3.5" fill="#090b0a"/>
     <path d="M2.5 11 a5.5 5.5 0 0 1 11 0" stroke="rgba(255,255,255,0.1)" stroke-width="2" fill="none" stroke-linecap="round"/>
@@ -441,6 +501,7 @@ async function fetchUsage() {
     const raw = await scrapeUsage();
     usageData = parseScrapedData(raw);
     lastFetch = new Date();
+    lastSessionPct = usageData?.session?.pct ?? null;
     tray && tray.setImage(makeTrayIcon("ok"));
     tray && tray.setToolTip(buildTooltip());
   } catch (err) {
