@@ -715,7 +715,7 @@ function setStatus(type, text) {
 
 // Determine colour class from percentage
 function pctClass(p) {
-  return p >= 90 ? 'critical' : p >= 65 ? 'warning' : 'normal';
+  return p > 80 ? 'critical' : p > 50 ? 'warning' : 'normal';
 }
 
 function setGauge(ringId, pctId, pct) {
@@ -728,7 +728,7 @@ function setGauge(ringId, pctId, pct) {
 
   // SVG stroke
   ring.style.strokeDashoffset = CIRC * (1 - p / 100);
-  ring.className = 'gauge-fill ' + cls;
+  ring.setAttribute('class', 'gauge-fill ' + cls);
 
   // Text
   pctEl.innerHTML = Math.round(p) + '<sup>%</sup>';
@@ -820,7 +820,7 @@ ipcRenderer.on('usage-update', (_, d) => {
   // Alert banner for critical session
   const banner  = document.getElementById('alert-banner');
   const alertTx = document.getElementById('alert-txt');
-  if ((s.pct || 0) >= 85) {
+  if ((s.pct || 0) > 80) {
     banner.classList.remove('hidden');
     alertTx.textContent =
       'Session critique · ' + (s.pct || 0) + '% · réinit. dans ' + (s.reset || '—') + exactTimeStr;
