@@ -795,9 +795,26 @@ ipcRenderer.on('usage-update', (_, d) => {
   setCard('card-session', s.pct);
   document.getElementById('sess-used').textContent = fmt(s.used);
   document.getElementById('sess-max').textContent  = fmt(s.max);
+  
+  let exactTimeStr = '';
   if (s.reset) {
+    let h = 0, m = 0;
+    const hMatch = s.reset.match(/(\d+)\s*(?:h|hour)/i);
+    const mMatch = s.reset.match(/(\d+)\s*(?:m|min)/i);
+    if (hMatch) h = parseInt(hMatch[1], 10);
+    if (mMatch) m = parseInt(mMatch[1], 10);
+
+    if (h > 0 || m > 0) {
+      const target = new Date(lastFetch ? lastFetch : Date.now());
+      target.setHours(target.getHours() + h);
+      target.setMinutes(target.getMinutes() + m);
+      const th = target.getHours();
+      const tm = target.getMinutes().toString().padStart(2, '0');
+      exactTimeStr = ` (${th}h${tm === '00' ? '' : tm})`;
+    }
+
     document.getElementById('sess-reset').innerHTML =
-      'Réinitialisation dans <span>' + s.reset + '</span>';
+      'Réinitialisation dans <span>' + s.reset + exactTimeStr + '</span>';
   }
 
   // Alert banner for critical session
@@ -806,7 +823,7 @@ ipcRenderer.on('usage-update', (_, d) => {
   if ((s.pct || 0) >= 85) {
     banner.classList.remove('hidden');
     alertTx.textContent =
-      'Session critique · ' + (s.pct || 0) + '% · réinit. dans ' + (s.reset || '—');
+      'Session critique · ' + (s.pct || 0) + '% · réinit. dans ' + (s.reset || '—') + exactTimeStr;
   } else {
     banner.classList.add('hidden');
   }
