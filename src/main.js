@@ -235,11 +235,17 @@ function scrapeUsage() {
             // ── 3. DOM scraping (fallback & main) ─────────────────────────
             const text = document.body.innerText;
 
-            // Detect session block
+            // Detect session block (after heading)
             function extractBlock (heading) {
               const idx = text.indexOf(heading);
               if (idx === -1) return null;
               return text.slice(idx, idx + 600);
+            }
+            // Capture context around heading (includes text before it — e.g. value displayed above label)
+            function extractAround (heading, before = 200, after = 400) {
+              const idx = text.indexOf(heading);
+              if (idx === -1) return null;
+              return text.slice(Math.max(0, idx - before), idx + after);
             }
 
             // Grab numbers from a text block
@@ -255,9 +261,12 @@ function scrapeUsage() {
             const weeklyBlock   = extractBlock('Limites hebdomadaires')
                                 || extractBlock('Weekly limits')
                                 || extractBlock('Weekly usage');
-            const extraBlock    = extractBlock('Usage supplémentaire')
-                                || extractBlock('Additional usage')
-                                || extractBlock('Extra usage');
+            const extraBlock    = extractAround('Usage supplémentaire')
+                                || extractAround('Additional usage')
+                                || extractAround('Extra usage');
+            const balanceBlock  = extractAround('Solde actuel')
+                                || extractAround('Current balance')
+                                || extractAround('Balance');
 
             // Generic: grab all <section> or card-like divs and their headings + numbers
             const cards = [];
@@ -279,8 +288,10 @@ function scrapeUsage() {
               });
             });
 
-            // Spend amount (look for € / $)
-            const spendMatch = text.match(/([\d,. ]+)\s*€/) || text.match(/\$([\d,.]+)/);
+            // Spend amount — prefer from extra block to avoid capturing balance amount
+            const spendMatch = (extraBlock && (extraBlock.match(/([\d,. ]+)\s*€/) || extraBlock.match(/\$([\d,.]+)/)))
+                            || text.match(/([\d,. ]+)\s*€/)
+                            || text.match(/\$([\d,.]+)/);
             const spend = spendMatch ? spendMatch[0] : null;
 
             return {
@@ -288,6 +299,7 @@ function scrapeUsage() {
               sessionBlock,
               weeklyBlock,
               extraBlock,
+              balanceBlock,
               cards    : cards.slice(0, 30),
               bars,
               spend,
@@ -327,6 +339,9 @@ function parseScrapedData(raw) {
     throw new Error("SESSION_EXPIRED");
   }
 
+  console.log("[debug] extraBlock:", raw.extraBlock?.slice(0, 200));
+  console.log("[debug] balanceBlock:", raw.balanceBlock?.slice(0, 200));
+
   const text = raw.rawText || "";
 
   // Helper: extract number (handles "1,234", "1.2k", "1.5M")
@@ -354,7 +369,7 @@ function parseScrapedData(raw) {
       pct: null,
       reset: null,
     },
-    extra: { label: "Usage supplémentaire", spend: null },
+    extra: { label: "Usage supplémentaire", spend: null, budget: null, renewal: null, balance: null, autoReload: false, extraEnabled: false },
   };
 
   // From aria bars
@@ -378,6 +393,22 @@ function parseScrapedData(raw) {
 
   // Spend
   if (raw.spend) result.extra.spend = raw.spend;
+
+  // Extra block: budget, renewal
+  if (raw.extraBlock) {
+    const budgetM = raw.extraBlock.match(/\/\s*([\d,. ]+\s*[€$])/);
+    if (budgetM) result.extra.budget = budgetM[1].trim();
+    const renewalM = raw.extraBlock.match(/[Rr]enouvellement\s+(.+?)(?:\n|$)/);
+    if (renewalM) result.extra.renewal = renewalM[1].trim();
+  }
+
+  // Balance block: solde, autoReload, extraEnabled
+  if (raw.balanceBlock) {
+    const balM = raw.balanceBlock.match(/([\d,. ]+\s*[€$])/);
+    if (balM) result.extra.balance = balM[1].trim();
+    if (/recharge[^:\n]*:\s*on|auto.reload.*on/i.test(raw.balanceBlock)) result.extra.autoReload = true;
+    if (/usage\s+supp[^:\n]*:\s*on|additional.*on/i.test(raw.balanceBlock)) result.extra.extraEnabled = true;
+  }
 
   // From cards
   if (raw.cards) {
@@ -518,10 +549,15 @@ function buildTooltip() {
   if (!usageData) return "OpenClaudeUsage";
   const s = usageData.session;
   const w = usageData.weekly;
+  const e = usageData.extra;
   let tip = "OpenClaudeUsage\n";
   if (s.pct !== null) tip += `Session : ${s.pct}%`;
   if (w.pct !== null) tip += `  |  Semaine : ${w.pct}%`;
-  if (usageData.extra.spend) tip += `\nDépenses : ${usageData.extra.spend}`;
+  if (e.spend) {
+    tip += `\nUsage supp. : ${e.spend}`;
+    if (e.budget) tip += ` / ${e.budget}`;
+  }
+  if (e.balance) tip += `\nSolde : ${e.balance}`;
   return tip.trim();
 }
 
